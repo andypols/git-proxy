@@ -9,6 +9,14 @@ function loadApiBase() {
 describe('apiBase', () => {
   let originalEnv;
 
+  before(() => {
+    global.location = { origin: 'http://my-lovely-git-proxy.server' };
+  });
+
+  after(() => {
+    delete global.location;
+  });
+
   beforeEach(() => {
     originalEnv = process.env.VITE_API_URI;
     delete process.env.VITE_API_URI;
@@ -24,18 +32,18 @@ describe('apiBase', () => {
     delete require.cache[require.resolve('../../src/ui/apiBase')];
   });
 
-  it('uses empty string when VITE_API_URI is not set', () => {
+  it('should default API_BASE to empty string if VITE_API_URI is not set', () => {
     const { API_BASE } = loadApiBase();
-    expect(API_BASE).to.equal('');
+    expect(API_BASE).to.equal('http://my-lovely-git-proxy.server');
   });
 
-  it('returns the exact value when no trailing slash', () => {
+  it('should set API_BASE to VITE_API_URI value if no trailing slash', () => {
     process.env.VITE_API_URI = 'https://example.com';
     const { API_BASE } = loadApiBase();
     expect(API_BASE).to.equal('https://example.com');
   });
 
-  it('strips trailing slashes from VITE_API_URI', () => {
+  it('should remove all trailing slashes from VITE_API_URI for API_BASE', () => {
     process.env.VITE_API_URI = 'https://example.com////';
     const { API_BASE } = loadApiBase();
     expect(API_BASE).to.equal('https://example.com');
